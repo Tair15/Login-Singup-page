@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup/Login Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #app {
+            max-width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <form id="signupForm">
+            <h2>Signup</h2>
+            <input type="text" id="signupUserName" placeholder="Username">
+            <input type="email" id="signupEmail" placeholder="Email">
+            <input type="password" id="signupPassword" placeholder="Password">
+            <button type="button" onclick="signup()">Sign Up</button>
+            <p id="signupError" class="error"></p>
+        </form>
+
+        <form id="loginForm">
+            <h2>Login</h2>
+            <input type="text" id="loginEmail" placeholder="loginEmail">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button type="button" onclick="login()">Login</button>
+            <p id="loginError" class="error"></p>
+        </form>
+
+        <div id="userInfo" style="display: none;">
+            <h2>User Information</h2>
+            <p id="userId"></p>
+            <p id="userName"></p>
+            <p id="userEmail"></p>
+        </div>
+    </div>
+
+    <script>
+        function signup() {
+            const formData = {
+                userName: document.getElementById('signupUserName').value,
+                email: document.getElementById('signupEmail').value,
+                password: document.getElementById('signupPassword').value
+            };
+
+            fetch('http://localhost:8080/api/users/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('signupError').textContent = data.message;
+
+                // Display user information on successful signup
+                if (data.id) {
+                    displayUserInfo(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+            // Prevent the default form submission
+            event.preventDefault();
+        }
+
+        function login() {
+            const formData = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+
+            fetch('http://localhost:8080/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loginError').textContent = data.message;
+
+                // Display user information on successful login
+                if (data.id) {
+                    displayUserInfo(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            // Prevent the default form submission
+            event.preventDefault();
+        }
+
+        function displayUserInfo(user) {
+            document.getElementById('userId').textContent = 'ID: ' + user.id;
+            document.getElementById('userName').textContent = 'Username: ' + user.userName;
+            document.getElementById('userEmail').textContent = 'Email: ' + user.email;
+
+            // Show the user information section
+            document.getElementById('userInfo').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
